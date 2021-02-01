@@ -67,7 +67,7 @@ async def rename_doc(bot, message):
         splitit = actualname.split(".")
         extension = (splitit[-1])
     except:
-        extension = "mkv"
+        extension = "mp4"
 
     await bot.delete_messages(
         chat_id=message.chat.id,
@@ -123,7 +123,10 @@ async def rename_doc(bot, message):
             if os.path.exists(thumb_image_path):
                 width = 0
                 height = 0
+                duration = 0
                 metadata = extractMetadata(createParser(thumb_image_path))
+                if metadata.has("duration"):
+                    duration = metadata.get("duration").seconds
                 if metadata.has("width"):
                     width = metadata.get("width")
                 if metadata.has("height"):
@@ -136,11 +139,12 @@ async def rename_doc(bot, message):
                 thumb_image_path = None
 
             c_time = time.time()
-            await bot.send_document(
+            await bot.send_video(
                 chat_id=message.chat.id,
-                document=new_file_name,
+                video=new_file_name,
+                duration=duration,
                 thumb=thumb_image_path,
-                caption=description,
+                caption=new_file_name,
                 # reply_markup=reply_markup,
                 reply_to_message_id=message.reply_to_message.message_id,
                 progress=progress_for_pyrogram,
