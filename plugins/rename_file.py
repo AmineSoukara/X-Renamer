@@ -109,6 +109,8 @@ async def rename_doc(bot, message):
                 sendmsg = await message.reply_text(script.SAVED_RECVD_DOC_FILE, quote=True)
 
             new_file_name = download_location + file_name + "." + extension
+            xcaption = file_name + " " + " @AmineSoukara"
+            x = "./pic/text.png"
             os.rename(the_real_download_location, new_file_name)
             try:
                 await bot.edit_message_text(
@@ -133,7 +135,11 @@ async def rename_doc(bot, message):
             else:
                 width = 0
                 height = 0
-                metadata = extractMetadata(createParser(thumb_image_path))
+                duration = 0
+                metadata = extractMetadata(createParser(new_file_name))
+             try:
+                if metadata.has("duration"):
+                    duration = metadata.get('duration').seconds
                 if metadata.has("width"):
                     width = metadata.get("width")
                 if metadata.has("height"):
@@ -144,11 +150,12 @@ async def rename_doc(bot, message):
                 img.save(thumb_image_path, "JPEG")
 
             c_time = time.time()
-            await bot.send_document(
+            await bot.send_video(
                 chat_id=message.chat.id,
-                document=new_file_name,
-                thumb=thumb_image_path,
-                caption=description,
+                video=new_file_name,
+                duration=duration,
+                thumb=x,
+                caption=xcaption,
                 # reply_markup=reply_markup,
                 reply_to_message_id=message.reply_to_message.message_id,
                 progress=progress_for_pyrogram,
