@@ -132,13 +132,10 @@ async def rename_doc(bot, message):
             thumb_image_path = download_location + str(message.from_user.id) + ".jpg"
 
             if not os.path.exists(thumb_image_path):
-                mes = await thumb(message.from_user.id)
-                if mes != None:
-                    m = await bot.get_messages(message.chat.id, mes.msg_id)
-                    await m.download(file_name=thumb_image_path)
-                    thumb_image_path = thumb_image_path
-                else:
-                    thumb_image_path = None                    
+               try:
+                    thumb_image_path = await take_screen_shot(new_file_name, os.path.dirname(new_file_name), random.randint(0, duration - 1))
+               except:
+                    thumb_image_path = None
             else:
                 width = 0
                 height = 0
