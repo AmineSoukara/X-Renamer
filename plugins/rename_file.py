@@ -121,7 +121,7 @@ async def rename_doc(bot, message):
             except:
                 await sendmsg.delete()
                 sendmsg = await message.reply_text(script.UPLOAD_START, quote=True)
-           logger.info(new_file_name)
+        #   logger.info(new_file_name)
 
             width = 0
             height = 0
