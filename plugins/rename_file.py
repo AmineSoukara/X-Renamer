@@ -121,16 +121,17 @@ async def rename_doc(bot, message):
             except:
                 await sendmsg.delete()
                 sendmsg = await message.reply_text(script.UPLOAD_START, quote=True)
-        #   logger.info(new_file_name)
-
+            logger.info(the_real_download_location)
             width = 0
             height = 0
             duration = 0
             metadata = extractMetadata(createParser(new_file_name))
-            if metadata.has("duration"):
+            try:
+             if metadata.has("duration"):
                 duration = metadata.get('duration').seconds
+            except:
+              pass
             thumb_image_path = download_location + str(message.from_user.id) + ".jpg"
-
             if not os.path.exists(thumb_image_path):
                try:
                     thumb_image_path = await take_screen_shot(new_file_name, os.path.dirname(new_file_name), random.randint(0, duration - 1))
@@ -144,11 +145,16 @@ async def rename_doc(bot, message):
                     width = metadata.get("width")
                 if metadata.has("height"):
                     height = metadata.get("height")
+                # resize image
+                # ref: https://t.me/PyrogramChat/44663
+                # https://stackoverflow.com/a/21669827/4723940
                 Image.open(thumb_image_path).convert("RGB").save(thumb_image_path)
                 img = Image.open(thumb_image_path)
+                # https://stackoverflow.com/a/37631799/4723940
+                # img.thumbnail((90, 90))
                 img.resize((320, height))
                 img.save(thumb_image_path, "JPEG")
-
+                # https://pillow.readthedocs.io/en/3.1.x/reference/Image.html#create-thumbnails
             c_time = time.time()
             await bot.send_video(
                 chat_id=message.chat.id,
