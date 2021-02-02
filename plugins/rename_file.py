@@ -121,9 +121,16 @@ async def rename_doc(bot, message):
             except:
                 await sendmsg.delete()
                 sendmsg = await message.reply_text(script.UPLOAD_START, quote=True)
-            # logger.info(the_real_download_location)
+           logger.info(the_real_download_location)
 
+            width = 0
+            height = 0
+            duration = 0
+            metadata = extractMetadata(createParser(the_real_download_location))
+            if metadata.has("duration"):
+                duration = metadata.get('duration').seconds
             thumb_image_path = download_location + str(message.from_user.id) + ".jpg"
+
             if not os.path.exists(thumb_image_path):
                 mes = await thumb(message.from_user.id)
                 if mes != None:
@@ -135,10 +142,7 @@ async def rename_doc(bot, message):
             else:
                 width = 0
                 height = 0
-                duration = 0
-                metadata = extractMetadata(createParser(new_file_name))
-                if metadata.has("duration"):
-                    duration = metadata.get('duration').seconds
+                metadata = extractMetadata(createParser(thumb_image_path))
                 if metadata.has("width"):
                     width = metadata.get("width")
                 if metadata.has("height"):
