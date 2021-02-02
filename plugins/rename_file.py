@@ -8,6 +8,7 @@ import os
 import time
 import asyncio
 import pyrogram
+import random
 
 if bool(os.environ.get("WEBHOOK", False)):
     from sample_config import Config
