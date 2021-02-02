@@ -160,7 +160,7 @@ async def rename_doc(bot, message):
                 width=width,
                 height=height,
                 supports_streaming=True,
-                thumb=x,
+                thumb=thumb_image_path,
                 caption=xcaption,
                 # reply_markup=reply_markup,
                 reply_to_message_id=message.reply_to_message.message_id,
