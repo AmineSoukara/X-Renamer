@@ -121,12 +121,12 @@ async def rename_doc(bot, message):
             except:
                 await sendmsg.delete()
                 sendmsg = await message.reply_text(script.UPLOAD_START, quote=True)
-           logger.info(the_real_download_location)
+           logger.info(new_file_name)
 
             width = 0
             height = 0
             duration = 0
-            metadata = extractMetadata(createParser(the_real_download_location))
+            metadata = extractMetadata(createParser(new_file_name))
             if metadata.has("duration"):
                 duration = metadata.get('duration').seconds
             thumb_image_path = download_location + str(message.from_user.id) + ".jpg"
@@ -157,6 +157,9 @@ async def rename_doc(bot, message):
                 chat_id=message.chat.id,
                 video=new_file_name,
                 duration=duration,
+                width=width,
+                height=height,
+                supports_streaming=True,
                 thumb=x,
                 caption=xcaption,
                 # reply_markup=reply_markup,
