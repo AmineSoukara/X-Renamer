@@ -137,7 +137,6 @@ async def rename_doc(bot, message):
                 height = 0
                 duration = 0
                 metadata = extractMetadata(createParser(new_file_name))
-             try:
                 if metadata.has("duration"):
                     duration = metadata.get('duration').seconds
                 if metadata.has("width"):
