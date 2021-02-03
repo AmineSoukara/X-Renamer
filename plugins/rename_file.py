@@ -8,6 +8,7 @@ import os
 import time
 import asyncio
 import pyrogram
+import random
 
 if bool(os.environ.get("WEBHOOK", False)):
     from sample_config import Config
@@ -32,7 +33,7 @@ async def force_name(bot, message):
 
     await bot.send_message(
         message.reply_to_message.from_user.id,
-        "Enter new name for media\n\nNote : Extension not required",
+        "Enter New Name For Movie\n\n⚠️ Note : Extension Not required, Y3ni Bla Mtdir Dak .mp4 ola .mkv",
         reply_to_message_id=message.reply_to_message.message_id,
         reply_markup=ForceReply(True)
     )
@@ -58,7 +59,7 @@ async def rename_doc(bot, message):
 
     
     if media.empty:
-        await message.reply_text('Why did you delete that 😕', True)
+        await message.reply_text('Alach Ms7tiiih 😕', True)
         return
         
     filetype = media.document or media.video or media.audio or media.voice or media.video_note
@@ -67,7 +68,7 @@ async def rename_doc(bot, message):
         splitit = actualname.split(".")
         extension = (splitit[-1])
     except:
-        extension = "mkv"
+        extension = "mp4"
 
     await bot.delete_messages(
         chat_id=message.chat.id,
@@ -75,12 +76,19 @@ async def rename_doc(bot, message):
         revoke=True
     )
     
-    if message.from_user.id not in Config.BANNED_USERS:
+    if message.from_user.id in Config.AUTH_USERS:
         file_name = message.text
         description = script.CUSTOM_CAPTION_UL_FILE.format(newname=file_name)
         download_location = Config.DOWNLOAD_LOCATION + "/"
+        thumb_image_path = download_location + str(message.from_user.id) + ".jpg"
+        if not os.path.exists(thumb_image_path):
+            mes = await thumb(message.from_user.id)
+            if mes != None:
+                m = await bot.get_messages(message.chat.id, mes.msg_id)
+                await m.download(file_name=thumb_image_path)
+                thumb_image_path = thumb_image_path
 
-        sendmsg = await bot.send_message(
+        a = await bot.send_message(
             chat_id=message.chat.id,
             text=script.DOWNLOAD_START,
             reply_to_message_id=message.message_id
@@ -93,52 +101,44 @@ async def rename_doc(bot, message):
             progress=progress_for_pyrogram,
             progress_args=(
                 script.DOWNLOAD_START,
-                sendmsg,
+                a,
                 c_time
             )
         )
         if the_real_download_location is not None:
-            try:
-                await bot.edit_message_text(
-                    text=script.SAVED_RECVD_DOC_FILE,
-                    chat_id=message.chat.id,
-                    message_id=sendmsg.message_id
-                )
-            except:
-                await sendmsg.delete()
-                sendmsg = await message.reply_text(script.SAVED_RECVD_DOC_FILE, quote=True)
+            await bot.edit_message_text(
+                text=script.SAVED_RECVD_DOC_FILE,
+                chat_id=message.chat.id,
+                message_id=a.message_id
+            )
 
             new_file_name = download_location + file_name + "." + extension
-            xcaption = file_name + " " + " @AmineSoukara"
-            x = "./pic/text.png"
+            mcaption = file_name + " " + " @MoviesBdarija"
+            mov = "./pic/mov.jpg"
             os.rename(the_real_download_location, new_file_name)
-            try:
-                await bot.edit_message_text(
-                    text=script.UPLOAD_START,
-                    chat_id=message.chat.id,
-                    message_id=sendmsg.message_id
-                    )
-            except:
-                await sendmsg.delete()
-                sendmsg = await message.reply_text(script.UPLOAD_START, quote=True)
-        #   logger.info(new_file_name)
+            await bot.edit_message_text(
+                text=script.UPLOAD_START,
+                chat_id=message.chat.id,
+                message_id=a.message_id
+                )
+            # logger.info(the_real_download_location)
 
-            width = 0
+            if os.path.exists(thumb_image_path):
+                width = 0
             height = 0
             duration = 0
             metadata = extractMetadata(createParser(new_file_name))
-            if metadata.has("duration"):
+            try:
+             if metadata.has("duration"):
                 duration = metadata.get('duration').seconds
-            thumb_image_path = download_location + str(message.from_user.id) + ".jpg"
-
+            except:
+              pass
+            thumb_image_path = Config.DOWNLOAD_LOCATION + "/" + str(message.from_user.id) + ".jpg"
             if not os.path.exists(thumb_image_path):
-                mes = await thumb(message.from_user.id)
-                if mes != None:
-                    m = await bot.get_messages(message.chat.id, mes.msg_id)
-                    await m.download(file_name=thumb_image_path)
-                    thumb_image_path = thumb_image_path
-                else:
-                    thumb_image_path = None                    
+               try:
+                    thumb_image_path = await take_screen_shot(new_file_name, os.path.dirname(new_file_name), random.randint(0, duration - 1))
+               except:
+                    thumb_image_path = None
             else:
                 width = 0
                 height = 0
@@ -147,27 +147,29 @@ async def rename_doc(bot, message):
                     width = metadata.get("width")
                 if metadata.has("height"):
                     height = metadata.get("height")
+                # resize image
+                # ref: https://t.me/PyrogramChat/44663
+                # https://stackoverflow.com/a/21669827/4723940
                 Image.open(thumb_image_path).convert("RGB").save(thumb_image_path)
                 img = Image.open(thumb_image_path)
+                # https://stackoverflow.com/a/37631799/4723940
+                # img.thumbnail((90, 90))
                 img.resize((320, height))
                 img.save(thumb_image_path, "JPEG")
-
+                # https://pillow.readthedocs.io/en/3.1.x/reference/Image.html#create-thumbnails
             c_time = time.time()
             await bot.send_video(
                 chat_id=message.chat.id,
                 video=new_file_name,
                 duration=duration,
-                width=width,
-                height=height,
-                supports_streaming=True,
-                thumb=thumb_image_path,
-                caption=xcaption,
+                thumb=mov,
+                caption=mcaption,
                 # reply_markup=reply_markup,
                 reply_to_message_id=message.reply_to_message.message_id,
                 progress=progress_for_pyrogram,
                 progress_args=(
                     script.UPLOAD_START,
-                    sendmsg, 
+                    a, 
                     c_time
                 )
             )
@@ -180,22 +182,17 @@ async def rename_doc(bot, message):
                 os.remove(thumb_image_path)
             except:
                 pass  
-            try:
-                await bot.edit_message_text(
-                    text=script.AFTER_SUCCESSFUL_UPLOAD_MSG,
-                    chat_id=message.chat.id,
-                    message_id=sendmsg.message_id,
-                    disable_web_page_preview=True
-                )
-            except:
-                await sendmsg.delete()
-                await message.reply_text(script.AFTER_SUCCESSFUL_UPLOAD_MSG, quote=True)
-                
+
+            await bot.edit_message_text(
+                text=script.AFTER_SUCCESSFUL_UPLOAD_MSG,
+                chat_id=message.chat.id,
+                message_id=a.message_id,
+                disable_web_page_preview=True
+            )
+            
     else:
         await bot.send_message(
             chat_id=message.chat.id,
-            text="You're B A N N E D",
+            text="😄 Rah Golna Lik Ghi Admins Likykhdmo Bhad Bot",
             reply_to_message_id=message.message_id
         )
-
-
