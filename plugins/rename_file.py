@@ -163,7 +163,7 @@ async def rename_doc(bot, message):
                 chat_id=message.chat.id,
                 video=new_file_name,
                 duration=duration,
-                thumb=mov,
+                thumb=thumb_image_path,
                 caption=mcaption,
                 # reply_markup=reply_markup,
                 reply_to_message_id=message.reply_to_message.message_id,
