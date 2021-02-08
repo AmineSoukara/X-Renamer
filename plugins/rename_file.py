@@ -24,7 +24,7 @@ from plugins.helpers import progress_for_pyrogram
 
 from hachoir.metadata import extractMetadata
 from hachoir.parser import createParser
-from plugin.helpNekmo import take_screen_shot
+from plugins.helpNekmo import take_screen_shot
 
 from PIL import Image
 from database.database import *
